@@ -1,0 +1,308 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>PII | SECURE CORE</title>
+  
+  <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;500;700&family=Rajdhani:wght@500;600;700&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}?v=5">
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r134/three.min.js"></script>
+</head>
+<body>
+
+  <div id="canvas-container"></div>
+  <div class="scanlines"></div>
+
+  <section id="landing-section" class="vh-100 d-flex align-items-center justify-content-center text-center position-relative">
+    <div class="content-wrapper glass-panel p-5 fade-in-up" style="max-width: 650px;">
+      <div class="mb-3 text-cyan tracking-widest small fw-bold">SECURE DATA ENVIRONMENT // V.3.0</div>
+      <h1 class="display-3 fw-bold mb-4 text-white" style="letter-spacing: 2px;">PII DETECTOR</h1>
+      <p class="lead text-muted mb-5 font-mono" style="font-size: 1rem;">
+        > INITIATING HEURISTIC SCANNING PROTOCOLS.<br>
+        > WAITING FOR USER AUTHORIZATION...
+      </p>
+      <button id="enter-btn" class="btn btn-cyber btn-lg px-5 py-3">
+        INITIALIZE SYSTEM
+      </button>
+    </div>
+  </section>
+
+  <section id="app-section" class="d-none vh-100 flex-column">
+    
+    <nav class="navbar navbar-expand-lg border-bottom border-cyan-dim bg-glass-dark px-4 py-3">
+      <div class="container-fluid">
+        <div class="d-flex align-items-center gap-3">
+          <div class="brand-logo">
+             <div class="rotating-square"></div>
+          </div>
+          <span class="navbar-brand text-white fw-bold font-header tracking-wide" style="font-size: 1.5rem;">
+            SECURE<span class="text-cyan">CORE</span>
+          </span>
+        </div>
+        
+        <div class="d-flex align-items-center gap-4">
+          <div class="d-flex align-items-center gap-2">
+            <label class="text-muted font-mono small mb-0 fw-bold">PROTOCOL:</label>
+            <select id="mode" class="form-select form-select-sm cyber-select">
+              <option value="hybrid">HYBRID (AI + REGEX)</option>
+              <option value="regex">REGEX (FAST)</option>
+            </select>
+          </div>
+          <div class="status-indicator">
+            <span class="status-dot pulse"></span>
+            <span class="small font-mono text-cyan">SYSTEM ONLINE</span>
+          </div>
+        </div>
+      </div>
+    </nav>
+
+    <div class="container-fluid flex-grow-1 p-4 overflow-hidden">
+      <div class="row h-100 g-4">
+        
+        <div class="col-lg-5 h-100 d-flex flex-column">
+          <div class="card glass-card h-100 border-0 shadow-lg">
+            <div class="card-header bg-transparent border-bottom border-cyan-dim py-3">
+              <h5 class="mb-0 text-white font-header tracking-wide">
+                <span class="text-cyan me-2">➜</span>INPUT STREAM
+              </h5>
+            </div>
+            
+            <div class="card-body d-flex flex-column p-0 position-relative">
+              <form id="detect-form" class="h-100 d-flex flex-column">
+                <div class="flex-grow-1 position-relative">
+                   <textarea id="text" class="cyber-textarea h-100 w-100 p-4 font-mono" placeholder="// Awaiting data packet...&#10;// Paste raw text or upload document."></textarea>
+                </div>
+
+                <div class="command-bar p-3 border-top border-cyan-dim bg-darker">
+                  <div class="row g-2 align-items-center">
+                     <div class="col-auto">
+                        <input type="file" id="file" hidden>
+                        <button type="button" onclick="document.getElementById('file').click()" class="btn btn-outline-cyber btn-sm font-mono h-100">
+                          <span class="icon">📂</span> LOAD FILE
+                        </button>
+                     </div>
+                     <div class="col">
+                        <button type="submit" class="btn btn-cyber w-100 btn-sm font-mono fw-bold py-2">
+                          EXECUTE SCAN
+                        </button>
+                     </div>
+                  </div>
+                  <div id="alerts" class="mt-2 text-danger small font-mono text-center"></div>
+                </div>
+              </form>
+            </div>
+          </div>
+        </div>
+
+        <div class="col-lg-7 h-100 d-flex flex-column">
+          <div class="card glass-card h-100 border-0 shadow-lg position-relative overflow-hidden">
+            
+            <div id="processing-overlay" class="processing-overlay d-none">
+              <div class="spinner-border text-cyan mb-2"></div>
+              <div class="text-cyan font-mono small blink">ANALYZING PATTERNS...</div>
+            </div>
+
+            <div class="card-header bg-transparent border-bottom border-cyan-dim py-3">
+              <div class="d-flex justify-content-between align-items-center flex-wrap gap-2">
+                <h5 class="mb-0 text-white font-header tracking-wide">
+                  <span class="text-cyan me-2">➜</span>ANALYSIS LOG
+                </h5>
+                
+                <div class="masking-toolbar d-flex align-items-center gap-2 p-1 rounded border border-cyan-dim bg-dark-glass">
+                  <select id="masking" class="form-select form-select-sm cyber-select-sm border-0">
+                    <option value="partial">PARTIAL MASK</option>
+                    <option value="full">REDACT</option>
+                    <option value="synthetic">SYNTHETIC</option>
+                  </select>
+                  
+                  <select id="maskType" class="form-select form-select-sm cyber-select-sm border-0" style="max-width: 100px;">
+                    <option value="all">ALL TYPES</option>
+                  </select>
+
+                  <div class="vr bg-cyan-dim"></div>
+                  <div class="form-check form-switch mb-0 d-flex align-items-center">
+                    <input class="form-check-input cyber-switch" type="checkbox" id="includePlaceholders">
+                  </div>
+                  <button id="mask-btn" class="btn btn-xs btn-cyan-text font-mono fw-bold">APPLY</button>
+                </div>
+              </div>
+            </div>
+            
+            <div class="card-body p-0 d-flex flex-column overflow-hidden">
+              <div id="summary" class="status-bar p-2 font-mono small border-bottom border-cyan-dim text-center text-muted">
+                // SYSTEM IDLE
+              </div>
+              
+              <div class="row g-0 flex-grow-1 h-100">
+                <div class="col-md-6 border-end border-cyan-dim d-flex flex-column h-100">
+                  <div class="panel-label">RAW DETECTIONS</div>
+                  <div id="highlighted" class="data-container p-3 font-mono text-light custom-scroll"></div>
+                </div>
+                
+                <div class="col-md-6 d-flex flex-column h-100">
+                  <div class="panel-label">SANITIZED OUTPUT</div>
+                  <div id="masked" class="data-container p-3 font-mono text-success custom-scroll"></div>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <div id="loader" class="d-none position-fixed top-0 start-0 w-100 h-100 bg-black z-3 d-flex align-items-center justify-content-center flex-column">
+    <div class="loader-graphic mb-4"></div>
+    <div class="font-mono text-cyan tracking-widest small">ESTABLISHING CONNECTION...</div>
+    <div class="progress mt-3" style="width: 200px; height: 2px;">
+      <div class="progress-bar bg-cyan" style="width: 100%"></div>
+    </div>
+  </div>
+
+  <script src="{{ url_for('static', filename='app.js') }}?v=3"></script>
+  
+  <script>
+    // --- THREE.JS SETUP ---
+    const container = document.getElementById('canvas-container');
+    const scene = new THREE.Scene();
+    scene.fog = new THREE.FogExp2(0x05070a, 0.002);
+
+    const camera = new THREE.PerspectiveCamera(75, window.innerWidth / window.innerHeight, 0.1, 1000);
+    const renderer = new THREE.WebGLRenderer({ alpha: true, antialias: true });
+    
+    renderer.setSize(window.innerWidth, window.innerHeight);
+    renderer.setPixelRatio(window.devicePixelRatio);
+    container.appendChild(renderer.domElement);
+
+    // --- INTERACTIVE DATA SPHERE ---
+    const sphereGroup = new THREE.Group();
+    scene.add(sphereGroup);
+
+    // 1. Points Cloud (The Data)
+    const pointsGeo = new THREE.BufferGeometry();
+    const pointsCount = 1500;
+    const posArray = new Float32Array(pointsCount * 3);
+    
+    for(let i = 0; i < pointsCount * 3; i++) {
+        posArray[i] = (Math.random() - 0.5) * 30; // Spread out
+    }
+    
+    pointsGeo.setAttribute('position', new THREE.BufferAttribute(posArray, 3));
+    const pointsMat = new THREE.PointsMaterial({
+        size: 0.08,
+        color: 0x00f3ff,
+        transparent: true,
+        opacity: 0.8,
+        blending: THREE.AdditiveBlending
+    });
+    const particleMesh = new THREE.Points(pointsGeo, pointsMat);
+    sphereGroup.add(particleMesh);
+
+    // 2. Rotating Rings (The Security Layers)
+    const ringGeo1 = new THREE.TorusGeometry(10, 0.05, 16, 100);
+    const ringMat1 = new THREE.MeshBasicMaterial({ color: 0x00f3ff, transparent: true, opacity: 0.3 });
+    const ring1 = new THREE.Mesh(ringGeo1, ringMat1);
+    sphereGroup.add(ring1);
+
+    const ringGeo2 = new THREE.TorusGeometry(12, 0.02, 16, 100);
+    const ringMat2 = new THREE.MeshBasicMaterial({ color: 0xffffff, transparent: true, opacity: 0.1 });
+    const ring2 = new THREE.Mesh(ringGeo2, ringMat2);
+    ring2.rotation.x = Math.PI / 2;
+    sphereGroup.add(ring2);
+
+    // 3. Central Core (The Protected Asset)
+    const coreGeo = new THREE.IcosahedronGeometry(4, 1);
+    const coreMat = new THREE.MeshBasicMaterial({ 
+        color: 0x00f3ff, 
+        wireframe: true, 
+        transparent: true, 
+        opacity: 0.15 
+    });
+    const core = new THREE.Mesh(coreGeo, coreMat);
+    sphereGroup.add(core);
+
+    camera.position.z = 25;
+
+    // Mouse Interaction
+    let mouseX = 0;
+    let mouseY = 0;
+    let targetX = 0;
+    let targetY = 0;
+
+    const windowHalfX = window.innerWidth / 2;
+    const windowHalfY = window.innerHeight / 2;
+
+    document.addEventListener('mousemove', (event) => {
+        mouseX = (event.clientX - windowHalfX);
+        mouseY = (event.clientY - windowHalfY);
+    });
+
+    // Animation Loop
+    const clock = new THREE.Clock();
+
+    function animate() {
+        requestAnimationFrame(animate);
+        const elapsedTime = clock.getElapsedTime();
+
+        targetX = mouseX * 0.001;
+        targetY = mouseY * 0.001;
+
+        sphereGroup.rotation.y += 0.002;
+        sphereGroup.rotation.x += 0.001;
+
+        // Gentle floating effect
+        sphereGroup.position.y = Math.sin(elapsedTime * 0.5) * 0.5;
+
+        // Interactive rotation easing
+        sphereGroup.rotation.y += 0.05 * (targetX - sphereGroup.rotation.y);
+        sphereGroup.rotation.x += 0.05 * (targetY - sphereGroup.rotation.x);
+
+        // Pulse effect for core
+        const scale = 1 + Math.sin(elapsedTime * 2) * 0.05;
+        core.scale.set(scale, scale, scale);
+
+        renderer.render(scene, camera);
+    }
+    animate();
+
+    window.addEventListener('resize', () => {
+        camera.aspect = window.innerWidth / window.innerHeight;
+        camera.updateProjectionMatrix();
+        renderer.setSize(window.innerWidth, window.innerHeight);
+    });
+
+    // --- APP FLOW LOGIC ---
+    document.getElementById('enter-btn').addEventListener('click', () => {
+        const landing = document.getElementById('landing-section');
+        const loader = document.getElementById('loader');
+        const app = document.getElementById('app-section');
+
+        landing.style.opacity = '0';
+        
+        setTimeout(() => {
+            landing.classList.add('d-none');
+            landing.classList.remove('d-flex');
+            loader.classList.remove('d-none');
+            loader.classList.add('d-flex');
+            
+            // Camera Zoom Effect
+            let targetZ = 18; // Zoom closer
+            let zoom = setInterval(() => {
+                if(camera.position.z > targetZ) camera.position.z -= 0.1;
+                else clearInterval(zoom);
+            }, 10);
+        }, 500);
+
+        setTimeout(() => {
+            loader.classList.add('d-none');
+            loader.classList.remove('d-flex');
+            app.classList.remove('d-none');
+            app.classList.add('d-flex');
+        }, 2200);
+    });
+  </script>
+</body>
+</html>
