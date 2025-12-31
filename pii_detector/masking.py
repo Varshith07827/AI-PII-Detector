@@ -11,19 +11,21 @@ FULL_TOKENS = {
     "email": "[EMAIL]",
     "phone": "[PHONE]",
     "credit_card": "[CARD]",
+    "debit_card": "[DEBIT_CARD]",
     "bank_account": "[BANK_ACCOUNT]",
     "aadhaar": "[AADHAAR]",
     "pan": "[PAN]",
     "passport": "[PASSPORT]",
     "person_name": "[NAME]",
     "address": "[ADDRESS]",
+    "ip": "[IP]",
     "placeholder": "[PLACEHOLDER]",
 }
 
 
 def mask_value(value: str, label: str, mode: str) -> str:
     if mode == "partial":
-        if label in {"credit_card", "bank_account", "aadhaar"}:
+        if label in {"credit_card", "debit_card", "bank_account", "aadhaar"}:
             return _mask_digits_keep_tail(value, 4)
         if label == "phone":
             return _mask_digits_keep_tail(value, 3)

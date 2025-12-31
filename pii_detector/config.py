@@ -13,9 +13,10 @@ PII_PATTERNS: Dict[str, Pattern[str]] = {
     "pan": re.compile(r"\b[A-Z]{5}[0-9]{4}[A-Z]\b"),
     "passport": re.compile(r"\b[A-Z][0-9]{7}\b"),
     "credit_card": re.compile(r"\b(?:4[0-9]{12}(?:[0-9]{3})?|5[1-5][0-9]{14}|3[47][0-9]{13}|6(?:011|5[0-9]{2})[0-9]{12})\b"),
+    "debit_card": re.compile(r"\b(?:4[0-9]{12}(?:[0-9]{3})?|5[1-5][0-9]{14}|6[0-9]{15}|2[0-9]{14})\b"),
     "email": re.compile(r"\b[A-Z0-9._%+-]+@[A-Z0-9.-]+\.[A-Z]{2,}\b", re.IGNORECASE),
     "phone": re.compile(r"\b(?:\+?91[-\s]?)?(?:(?<!\d)([6-9][0-9]{2})[-\s]?(\d{3})[-\s]?(\d{4})(?!\d))\b"),
-    "ip": re.compile(r"\b(?:(?:25[0-5]|2[0-4][0-9]|[01]?\d?\d)(?:\.(?!$)|$)){4}\b"),
+    "ip": re.compile(r"\b(?:(?:25[0-5]|2[0-4][0-9]|[01]?[0-9][0-9]?)\.){3}(?:25[0-5]|2[0-4][0-9]|[01]?[0-9][0-9]?)\b"),
     "dob": re.compile(r"\b(?:0?[1-9]|[12][0-9]|3[01])[-/](?:0?[1-9]|1[0-2])[-/](?:19\d{2}|20\d{2})\b"),
     # Bank account: 9-18 digits with context keywords to avoid FP with phone/card
     "bank_account": re.compile(
