@@ -31,6 +31,9 @@ python cli.py "My email is test@example.com"
 # Process a file
 python cli.py path/to/document.txt
 
+# Process PDF/DOCX/CSV/XLSX/TXT with auto extraction
+python cli.py path/to/document.pdf
+
 # Save masked output to a file
 python cli.py input.txt --output masked.txt
 
@@ -50,6 +53,7 @@ python cli.py input.txt --mode regex --mask-mode partial
 - Masking can target a single detected type (e.g., only emails) or all types.
 - Offline-only: no external API calls.
 - CLI supports text or file inputs, detection/masking mode selection, and JSON reporting.
+- CLI auto-extracts PDF, DOCX, CSV, XLSX, and TXT with the same size limits as the API.
 
 ## API (draft)
 

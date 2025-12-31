@@ -2,8 +2,40 @@ import argparse
 import json
 import os
 import sys
+from pii_detector.config import DEFAULT_MAX_FILE_SIZE_BYTES
 from pii_detector.detection import detect_pii, risk_score
+from pii_detector.extract import SUPPORTED_TYPES, extract_text
 from pii_detector.masking import apply_masks
+
+
+def _load_text(input_value: str) -> str:
+    if os.path.exists(input_value):
+        if not os.path.isfile(input_value):
+            print(f"Error: '{input_value}' is not a file.", file=sys.stderr)
+            sys.exit(1)
+
+        ext = input_value.lower().rsplit(".", 1)[-1] if "." in input_value else ""
+        if ext not in SUPPORTED_TYPES:
+            print(
+                "Error: unsupported file type. Supported: "
+                + ", ".join(sorted(SUPPORTED_TYPES)),
+                file=sys.stderr,
+            )
+            sys.exit(1)
+
+        if os.path.getsize(input_value) > DEFAULT_MAX_FILE_SIZE_BYTES:
+            print("Error: file too large (limit 10 MB).", file=sys.stderr)
+            sys.exit(1)
+
+        try:
+            with open(input_value, "rb") as f:
+                data = f.read()
+            return extract_text(os.path.basename(input_value), data)
+        except Exception as e:
+            print(f"Error reading/parsing file: {e}", file=sys.stderr)
+            sys.exit(1)
+
+    return input_value
 
 def main():
     parser = argparse.ArgumentParser(description="PII Detector CLI")
@@ -15,25 +47,8 @@ def main():
     
     args = parser.parse_args()
     
-    text = args.input
-    # Check if input is a file
-    if os.path.exists(args.input):
-        if os.path.isfile(args.input):
-            try:
-                with open(args.input, "r", encoding="utf-8") as f:
-                    text = f.read()
-            except Exception as e:
-                print(f"Error reading file: {e}", file=sys.stderr)
-                sys.exit(1)
-        else:
-             # It exists but is not a file (e.g. directory), treat as text? 
-             # Or maybe user meant a file that doesn't exist?
-             # If it's a directory, we probably shouldn't process it.
-             print(f"Error: '{args.input}' is a directory.", file=sys.stderr)
-             sys.exit(1)
-    
-    # If it doesn't exist as a file, we treat the string itself as input.
-            
+    text = _load_text(args.input)
+
     print(f"Processing input ({len(text)} chars)...", file=sys.stderr)
     
     entities = detect_pii(text, mode=args.mode)
