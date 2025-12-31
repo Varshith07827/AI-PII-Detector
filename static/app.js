@@ -4,6 +4,7 @@ document.addEventListener('DOMContentLoaded', () => {
   const textInput = document.getElementById('text');
   const fileInput = document.getElementById('file');
   const modeSelect = document.getElementById('mode');
+  const minConfidenceInput = document.getElementById('minConfidence');
   const maskingSelect = document.getElementById('masking');
   const maskTypeSelect = document.getElementById('maskType');
   const includePlaceholders = document.getElementById('includePlaceholders');
@@ -16,7 +17,7 @@ document.addEventListener('DOMContentLoaded', () => {
 
   // --- CRITICAL CHECK ---
   const criticalElements = {
-    form, textInput, fileInput, modeSelect, maskingSelect, 
+    form, textInput, fileInput, modeSelect, minConfidenceInput, maskingSelect, 
     maskTypeSelect, includePlaceholders, summaryEl, highlightedEl, 
     maskedEl, alertsEl, maskBtn
   };
@@ -61,6 +62,7 @@ document.addEventListener('DOMContentLoaded', () => {
 
     const fd = new FormData();
     fd.append('mode', modeSelect.value);
+    fd.append('minConfidence', minConfidenceInput.value || '0.0');
     
     if (fileInput.files[0]) {
       fd.append('file', fileInput.files[0]);
@@ -84,6 +86,11 @@ document.addEventListener('DOMContentLoaded', () => {
       populateMaskTypes(latestEntities);
       renderSummary(data);
       renderHighlights(latestText, data.entities);
+      
+      if (data.filtered_count > 0) {
+        showAlert(`INFO: FILTERED ${data.filtered_count} LOW-CONFIDENCE ENTITIES`);
+        alertsEl.style.color = 'var(--cyan)';
+      }
       
       maskedEl.innerHTML = '<span class="text-muted">// AWAITING MASKING PROTOCOL...</span>';
 
@@ -110,6 +117,7 @@ document.addEventListener('DOMContentLoaded', () => {
     const body = {
       text: latestText,
       mode: modeSelect.value,
+      minConfidence: parseFloat(minConfidenceInput.value) || 0.0,
       masking: maskingSelect.value,
       includePlaceholders: includePlaceholders.checked,
       maskTypes: maskTypeSelect.value === 'all' ? [] : [maskTypeSelect.value],
@@ -126,6 +134,11 @@ document.addEventListener('DOMContentLoaded', () => {
       if (!res.ok) throw new Error(data.error || 'Masking failed');
 
       maskedEl.textContent = data.masked;
+      
+      if (data.filtered_count > 0) {
+        showAlert(`INFO: MASKED WITH CONFIDENCE ≥${body.minConfidence} (FILTERED ${data.filtered_count})`);
+        alertsEl.style.color = 'var(--cyan)';
+      }
       
     } catch (err) {
       showAlert(`MASK ERROR: ${err.message}`);

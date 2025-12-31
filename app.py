@@ -14,6 +14,13 @@ app = Flask(__name__)
 app.config["MAX_CONTENT_LENGTH"] = DEFAULT_MAX_FILE_SIZE_BYTES
 
 
+def _filter_entities(entities: List[Entity], min_confidence: float) -> List[Entity]:
+    """Filter entities by minimum confidence threshold."""
+    if min_confidence <= 0.0:
+        return entities
+    return [e for e in entities if e.confidence >= min_confidence]
+
+
 @app.get("/health")
 def health():
     return jsonify({"status": "ok"})
@@ -31,13 +38,17 @@ def api_detect():
         return jsonify({"error": payload.error}), 400
 
     entities = detect_pii(payload.text, mode=payload.mode)
+    filtered_entities = _filter_entities(entities, payload.min_confidence)
+    
     return jsonify(
         {
-            "entities": [e.to_dict() for e in entities],
-            "risk": risk_score(entities),
+            "entities": [e.to_dict() for e in filtered_entities],
+            "risk": risk_score(filtered_entities),
             "mode": payload.mode,
             "nlp": payload.mode != "regex",
             "text": payload.text,
+            "min_confidence": payload.min_confidence,
+            "filtered_count": len(entities) - len(filtered_entities),
         }
     )
 
@@ -68,9 +79,11 @@ def api_mask():
         allowed_labels = []
 
     entities = detect_pii(payload.text, mode=payload.mode)
+    filtered_entities = _filter_entities(entities, payload.min_confidence)
+    
     masked = apply_masks(
         payload.text,
-        entities,
+        filtered_entities,
         mode=masking_mode,
         include_placeholders=include_placeholders,
         allowed_labels=allowed_labels or None,
@@ -81,25 +94,33 @@ def api_mask():
             "masking": masking_mode,
             "includePlaceholders": include_placeholders,
             "maskTypes": allowed_labels,
+            "min_confidence": payload.min_confidence,
+            "filtered_count": len(entities) - len(filtered_entities),
         }
     )
 
 
 class Payload:
-    def __init__(self, text: str = "", mode: str = "hybrid", error: Optional[str] = None):
+    def __init__(self, text: str = "", mode: str = "hybrid", min_confidence: float = 0.0, error: Optional[str] = None):
         self.text = text
         self.mode = mode
+        self.min_confidence = min_confidence
         self.error = error
 
 
 def _parse_payload() -> Payload:
     mode = "hybrid"
+    min_confidence = 0.0
+    
     if request.is_json and request.json:
         mode = request.json.get("mode", "hybrid")
+        min_confidence = float(request.json.get("minConfidence", 0.0))
         text = request.json.get("text") or ""
         if not text:
             return Payload(error="text is required for JSON requests")
-        return Payload(text=text, mode=mode)
+        if not 0.0 <= min_confidence <= 1.0:
+            return Payload(error="minConfidence must be between 0.0 and 1.0")
+        return Payload(text=text, mode=mode, min_confidence=min_confidence)
 
     uploaded = request.files.get("file")
     text = request.form.get("text") or ""
@@ -121,7 +142,15 @@ def _parse_payload() -> Payload:
     mode = request.form.get("mode", mode)
     if mode not in {"regex", "hybrid"}:
         mode = "hybrid"
-    return Payload(text=text, mode=mode)
+    
+    try:
+        min_confidence = float(request.form.get("minConfidence", 0.0))
+        if not 0.0 <= min_confidence <= 1.0:
+            min_confidence = 0.0
+    except (ValueError, TypeError):
+        min_confidence = 0.0
+    
+    return Payload(text=text, mode=mode, min_confidence=min_confidence)
 
 
 if __name__ == "__main__":

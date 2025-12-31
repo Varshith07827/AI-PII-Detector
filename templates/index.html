@@ -51,6 +51,10 @@
               <option value="regex">REGEX (FAST)</option>
             </select>
           </div>
+          <div class="d-flex align-items-center gap-2">
+            <label class="text-muted font-mono small mb-0 fw-bold">MIN CONFIDENCE:</label>
+            <input type="number" id="minConfidence" class="form-control form-control-sm cyber-input" value="0.0" min="0" max="1" step="0.1" style="width: 80px;">
+          </div>
           <div class="status-indicator">
             <span class="status-dot pulse"></span>
             <span class="small font-mono text-cyan">SYSTEM ONLINE</span>

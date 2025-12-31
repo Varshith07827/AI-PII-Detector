@@ -137,6 +137,21 @@ body {
 }
 .cyber-select-sm { font-size: 0.8rem; padding: 2px 8px; }
 
+.cyber-input {
+  background: #0b111a;
+  border: 1px solid var(--panel-border);
+  color: var(--cyan);
+  font-family: var(--font-mono);
+  text-align: center;
+  font-size: 0.85rem;
+}
+.cyber-input:focus {
+  background: #16202e;
+  border-color: var(--cyan);
+  box-shadow: 0 0 10px rgba(0, 243, 255, 0.2);
+  outline: none;
+}
+
 /* Custom Switch */
 .cyber-switch {
   background-color: #1a2633;
