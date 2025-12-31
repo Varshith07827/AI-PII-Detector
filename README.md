@@ -42,6 +42,12 @@ python cli.py input.txt --json report.json
 
 # Specify detection and masking modes
 python cli.py input.txt --mode regex --mask-mode partial
+
+# Filter by confidence threshold
+python cli.py input.txt --min-confidence 0.7
+
+# Batch process directory recursively
+python cli.py path/to/documents/ --batch --json batch_report.json
 ```
 
 ## Features
@@ -54,6 +60,8 @@ python cli.py input.txt --mode regex --mask-mode partial
 - Offline-only: no external API calls.
 - CLI supports text or file inputs, detection/masking mode selection, and JSON reporting.
 - CLI auto-extracts PDF, DOCX, CSV, XLSX, and TXT with the same size limits as the API.
+- CLI batch mode processes entire directories with aggregated reports and per-file risk summaries.
+- Confidence threshold filtering (`--min-confidence`) reduces noise by excluding low-confidence detections.
 
 ## API (draft)
 

@@ -45,7 +45,7 @@ Offline-first tool that detects, visualizes, risk-scores, and masks PII from upl
 - Risk score: weighted sum with diminishing returns, critical floors for high-risk types, combo bonuses (identity + contact, financial + name); buckets Low/Medium/High/Critical; compliance flags for GDPR/DPDP/HIPAA/PCI-DSS.
 - Masking: partial (keep tails), full ([REDACTED]/tokens), synthetic (type-consistent fakes with watermark prefix). Placeholders masked only if opt-in.
 - API: POST /api/detect (multipart or JSON), POST /api/mask, GET /health.
-- CLI: detect and mask from command line; supports detection mode (`regex`/`hybrid`), masking mode (`full`/`partial`/`synthetic`), optional JSON report, output file, and the same file-type support/size limits (PDF, DOCX, CSV, XLSX, TXT, ≤10 MB).
+- CLI: detect and mask from command line; supports detection mode (`regex`/`hybrid`), masking mode (`full`/`partial`/`synthetic`), optional JSON report, output file, and the same file-type support/size limits (PDF, DOCX, CSV, XLSX, TXT, ≤10 MB). Batch mode (`--batch`) processes directories recursively with aggregated reports. Confidence threshold (`--min-confidence`) filters low-confidence entities.
 
 ## Non-Functional Requirements
 - Python 3.8+; Flask REST API; optional spaCy (prefer medium model, fallback small); preload patterns/models to reduce cold starts.
@@ -71,6 +71,7 @@ Offline-first tool that detects, visualizes, risk-scores, and masks PII from upl
 - No outbound network during processing.
 - spaCy absence does not crash; regex-only path works.
 - CLI processes both inline text and file inputs; masking and JSON output flags functional.
+- CLI batch mode aggregates results from multiple files; confidence filtering works as expected.
 
 ## Risks & Mitigations
 - False positives/negatives: checksums/context and IFSC validation; threshold tuning.
