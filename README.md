@@ -1,6 +1,6 @@
 # PII Detector – AI Privacy Protection Tool
 
-Offline-first Flask app that detects, scores, highlights, and masks PII in pasted text or uploaded files (PDF, DOCX, CSV, XLSX, TXT). Hybrid regex + optional spaCy mode; no CLI.
+Offline-first Flask app that detects, scores, highlights, and masks PII in pasted text or uploaded files (PDF, DOCX, CSV, XLSX, TXT). Hybrid regex + optional spaCy mode, plus a CLI for offline/batch use.
 
 ## Quick start
 
@@ -20,6 +20,27 @@ Offline-first Flask app that detects, scores, highlights, and masks PII in paste
    ```
 5. Open http://127.0.0.1:5000 and test.
 
+## CLI Usage
+
+You can use the CLI tool to process text or files directly from the command line.
+
+```bash
+# Process text string
+python cli.py "My email is test@example.com"
+
+# Process a file
+python cli.py path/to/document.txt
+
+# Save masked output to a file
+python cli.py input.txt --output masked.txt
+
+# Generate JSON report
+python cli.py input.txt --json report.json
+
+# Specify detection and masking modes
+python cli.py input.txt --mode regex --mask-mode partial
+```
+
 ## Features
 
 - Multi-format ingest with in-memory parsing; 10 MB max; no data stored.
@@ -28,6 +49,7 @@ Offline-first Flask app that detects, scores, highlights, and masks PII in paste
 - Risk scoring with compliance hints (GDPR/DPDP/HIPAA), heat-map highlighting, and masking modes (partial, full, synthetic). Placeholders can be flagged or masked (opt-in).
 - Masking can target a single detected type (e.g., only emails) or all types.
 - Offline-only: no external API calls.
+- CLI supports text or file inputs, detection/masking mode selection, and JSON reporting.
 
 ## API (draft)
 

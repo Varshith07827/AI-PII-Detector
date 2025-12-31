@@ -1,5 +1,5 @@
 - [x] Verify that the copilot-instructions.md file in the .github directory is created.
-- [x] Clarify Project Requirements (PII Detector, Flask, offline, no CLI, India focus, spaCy optional).
+- [x] Clarify Project Requirements (PII Detector, Flask, offline, CLI added, India focus, spaCy optional).
 - [x] Scaffold the Project (Flask app, SPA UI, requirements, docs).
 - [x] Customize the Project (regex + NLP scaffolds, placeholder detection, banking patterns, API routes).
 - [x] Install Required Extensions (none needed).
