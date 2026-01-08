@@ -1,4 +1,4 @@
-# PII Detector – AI Privacy Protection Tool
+# PII Detector –(CLI + GUI) AI Privacy Protection Tool
 
 Offline-first Flask app that detects, scores, highlights, and masks PII in pasted text or uploaded files (PDF, DOCX, CSV, XLSX, TXT). Hybrid regex + optional spaCy mode, plus a CLI for offline/batch use.
 
